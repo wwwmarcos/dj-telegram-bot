@@ -1,6 +1,7 @@
 const config = {
   botToken: process.env.BOT_TOKEN,
-  currentHost: 'https://music-bot-atletxs.now.sh'
+  currentHost: 'https://dj-bot-atletxs.now.sh',
+  isDevelopment: false
 }
 
 module.exports = {
