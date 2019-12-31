@@ -1,5 +1,6 @@
-const resolve = ({ reply }) =>
-  reply('me forka ai parça\n https://github.com/eptaccio/atletxs-telegram-bot')
+const resolve = ({ ctx }) => {
+  ctx.reply('oi')
+}
 
 module.exports = {
   resolve,
