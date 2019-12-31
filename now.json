@@ -1,14 +1,20 @@
 {
   "version": 2,
-  "name": "music-bot",
+  "name": "djproducerbot",
   "alias": [
-    "music-bot-atletxs.now.sh"
+    "djproducerbot.now.sh"
   ],
   "public": true,
   "builds": [
     {
       "src": "index.js",
-      "use": "@now/node-server"
+      "use": "@now/node-server",
+      "config": {
+        "includeFiles": [
+          "binaries/**",
+          "audios/**"
+        ]
+      }
     }
   ],
   "routes": [
