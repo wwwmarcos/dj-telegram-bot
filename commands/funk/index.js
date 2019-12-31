@@ -25,25 +25,23 @@ const getBinariePatch = () => path.join(
 const saveFileLocal = async ({ filePath, bot, fileId }) => {
   const fileLink = await bot.telegram.getFileLink(fileId)
 
-  const fileStream = await axios({
+  const { data: fileStream } = await axios({
     url: fileLink,
     responseType: 'stream'
   })
 
-  return new Promise((resolve, reject) => {
-    const writeStream = fs.createWriteStream(filePath)
+  const writeFileStream = fs.createWriteStream(filePath)
 
-    writeStream.on('finish', resolve)
-    writeStream.on('error', reject)
+  return new Promise((resolve, reject) => {
+    writeFileStream.on('finish', resolve)
+    writeFileStream.on('error', reject)
 
     fileStream
-      .data
-      .pipe(writeStream)
+      .pipe(writeFileStream)
   })
 }
 
 const mergeAudios = ({ filePath }) =>
-
   new Promise((resolve, reject) => {
     const outputDirectory = `${filePath}.mp3`
 
@@ -62,42 +60,38 @@ const mergeAudios = ({ filePath }) =>
 
     const binariePatch = getBinariePatch()
 
-    spawn(binariePatch, args, {})
+    const { stdout, stderr } = spawn(binariePatch, args, {})
       .on('error', reject)
       .on('close', () => resolve(outputDirectory))
+
+    stdout.on('data', data => process.stdout.write(data))
+    stderr.on('data', data => process.stdout.write(data))
   })
 
-const getAudioBuffer = (filePath) =>
-
+const getAudioBuffer = filePath =>
   fs.readFileSync(filePath)
 
+const getFileId = ctx => ctx.message &&
+  ctx.message &&
+  ctx.message.voice &&
+  ctx.message.voice.file_id
+
 const resolve = async ({ ctx, bot }) => {
-  const fileId = ctx.message &&
-    ctx.message.reply_to_message &&
-    ctx.message.reply_to_message.voice &&
-    ctx.message.reply_to_message.voice.file_id
+  const fileId = getFileId(ctx)
 
   if (!fileId) {
-    return ctx.reply(JSON.stringify(
-      ctx.message.reply_to_message, null, 2
-    ))
+    return ctx.reply('faltou o audio')
   }
 
   const filePath = getFilePath(fileId)
+  await saveFileLocal({ filePath, bot, fileId })
+  const outputPath = await mergeAudios({ filePath })
+  const audio = getAudioBuffer(outputPath)
 
-  try {
-    await saveFileLocal({ filePath, bot, fileId })
-    const outputPath = await mergeAudios({ filePath })
-    const audio = getAudioBuffer(outputPath)
-
-    return ctx.replyWithAudio({ source: audio })
-  } catch (error) {
-    console.log(error)
-    return ctx.reply('fail')
-  }
+  return ctx.replyWithVoice({ source: audio })
 }
 
 module.exports = {
   resolve,
-  command: 'funk'
+  on: 'voice'
 }
