@@ -7,4 +7,4 @@
 `now -e BOT_TOKEN=<bot-token> --prod`
 
 ## Configuring WebHook
-GET `http:<url>/start
+GET `http:<url>/start`
