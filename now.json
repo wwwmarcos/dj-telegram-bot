@@ -8,7 +8,7 @@
   "builds": [
     {
       "src": "index.js",
-      "use": "@now/node-server",
+      "use": "@now/node",
       "config": {
         "includeFiles": [
           "binaries/**",
