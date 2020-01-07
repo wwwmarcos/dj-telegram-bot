@@ -1,5 +1,5 @@
 const resolve = ({ ctx }) => {
-  ctx.reply('oi')
+  ctx.reply('oii')
 }
 
 module.exports = {

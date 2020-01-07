@@ -1,13 +1,15 @@
 const hello = require('./hello')
 const funk = require('./funk')
+const funkActions = require('./funk/actions')
 
 const configure = bot => {
   const commands = [
     funk,
-    hello
+    hello,
+    funkActions
   ]
 
-  for (const { command, resolve, on } of commands) {
+  for (const { command, resolve, on, use } of commands) {
     const genericResolve = async ctx => {
       const resolving = command || on
 
@@ -31,6 +33,10 @@ const configure = bot => {
     if (on) {
       console.log(`registering listener ${on}`)
       bot.on(on, genericResolve)
+    }
+
+    if (use) {
+      use(bot)
     }
   }
 }
