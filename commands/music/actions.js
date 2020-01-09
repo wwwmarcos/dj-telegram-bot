@@ -1,9 +1,9 @@
-const { Extra } = require('telegraf')
 const { spawn } = require('child_process')
 const { tmpdir } = require('os')
 const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
+const { avaibleBeats } = require('./avaibleBeats')
 
 const getFilePath = name => path.join(
   tmpdir(),
@@ -80,25 +80,34 @@ const getFileId = ctx => ctx
   .voice
   .file_id
 
-const resolve = async ({ ctx, bot, beat }) => {
+const resolve = async ({ ctx, bot, info }) => {
   const fileId = getFileId(ctx)
-  await ctx.editMessageText('building...')
+  const beat = info.actionName
 
   const filePath = getFilePath(fileId)
+
+  await ctx.editMessageText('saving original')
   await saveFileLocal({ filePath, bot, fileId })
+
+  await ctx.editMessageText('mixing audios')
   const outputPath = await mergeAudios({ filePath, beat })
+
+  await ctx.editMessageText('getting result')
   const audio = getAudioBuffer(outputPath)
 
-  return ctx.replyWithVoice({ source: audio })
+  await ctx.editMessageText('sending mix result')
+  await ctx.replyWithVoice({ source: audio })
+
+  await ctx.editMessageText('ok')
 }
 
-const buildAction = (beat, bot) => ctx =>
-  resolve({ ctx, bot, beat })
+const actions = avaibleBeats.map(beat => ({
+  action: {
+    name: beat,
+    resolve
+  }
+}))
 
 module.exports = {
-  resolve,
-  use: bot => {
-    bot.action('funk', buildAction('funk', bot))
-    bot.action('rap', buildAction('rap', bot))
-  }
+  actions
 }
