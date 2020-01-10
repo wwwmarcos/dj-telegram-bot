@@ -83,7 +83,6 @@ const getFileId = ctx => ctx
 const resolve = async ({ ctx, bot, info }) => {
   const fileId = getFileId(ctx)
   const beat = info.actionName
-
   const filePath = getFilePath(fileId)
 
   await ctx.editMessageText('saving original')
@@ -96,7 +95,7 @@ const resolve = async ({ ctx, bot, info }) => {
   const audio = getAudioBuffer(outputPath)
 
   await ctx.editMessageText('sending mix result')
-  await ctx.replyWithVoice({ source: audio })
+  await ctx.replyWithAudio({ source: audio })
 
   await ctx.editMessageText('ok')
 }
