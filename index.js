@@ -5,7 +5,11 @@ const Telegraf = require('telegraf')
 
 const app = express()
 
-const bot = new Telegraf(config.botToken)
+const bot = new Telegraf(config.botToken, {
+  telegram: {
+    webhookReply: false
+  }
+})
 
 commands.configure(bot)
 app.use(bot.webhookCallback('/callback'))
