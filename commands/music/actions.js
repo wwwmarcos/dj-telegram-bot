@@ -1,9 +1,9 @@
+const { avaibleBeats } = require('./avaibleBeats')
 const { spawn } = require('child_process')
 const { tmpdir } = require('os')
 const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
-const { avaibleBeats } = require('./avaibleBeats')
 
 const getFilePath = name => path.join(
   tmpdir(),
@@ -42,22 +42,51 @@ const saveFileLocal = async ({ filePath, bot, fileId }) => {
   })
 }
 
-const mergeAudios = ({ filePath, beat = 'funk1' }) =>
-  new Promise((resolve, reject) => {
-    const outputDirectory = `${filePath}.mp3`
+const getMergeParams = ({ fileType, filePath, beat }) => {
+  const outputExt = fileType === 'audio' ? 'mp3' : 'mp4'
+  const outputDirectory = `${filePath}.${outputExt}`
+  const beatPath = getBeatPath(beat)
 
-    const args = [
-      '-y',
-      '-i',
+  const audioArgs = [
+    '-y',
+    '-i',
+    filePath,
+    '-i',
+    beatPath,
+    '-filter_complex',
+    'amerge=inputs=2',
+    '-ac',
+    '2',
+    outputDirectory
+  ]
+
+  const videoArgs = [
+    '-y',
+    '-i',
+    filePath,
+    '-i',
+    beatPath,
+    '-filter_complex',
+    '[1:0] apad',
+    '-shortest',
+    outputDirectory
+  ]
+
+  const args = fileType === 'audio' ? audioArgs : videoArgs
+
+  return {
+    args,
+    outputDirectory
+  }
+}
+
+const mergeAudios = ({ filePath, fileType, beat = 'funk1' }) =>
+  new Promise((resolve, reject) => {
+    const { args, outputDirectory } = getMergeParams({
+      fileType,
       filePath,
-      '-i',
-      getBeatPath(beat),
-      '-filter_complex',
-      'amerge=inputs=2',
-      '-ac',
-      '2',
-      outputDirectory
-    ]
+      beat
+    })
 
     const binariePatch = getBinariePatch()
 
@@ -69,34 +98,82 @@ const mergeAudios = ({ filePath, beat = 'funk1' }) =>
     stderr.on('data', data => process.stdout.write(data))
   })
 
-const getAudioBuffer = filePath =>
+const getFileBuffer = filePath =>
   fs.readFileSync(filePath)
 
-const getFileId = ctx => ctx
-  .update
-  .callback_query
-  .message
-  .reply_to_message
-  .voice
-  .file_id
+const buildFileInfo = ({ fileId, type }) => ({
+  fileId,
+  fileType: type
+})
+
+const getFileInfo = ctx => {
+  const reply = ctx
+    .update
+    .callback_query
+    .message
+    .reply_to_message
+
+  if (reply.voice) {
+    return buildFileInfo({
+      fileId: reply.voice.file_id,
+      type: 'audio'
+    })
+  }
+
+  if (reply.audio) {
+    return buildFileInfo({
+      fileId: reply.audio.file_id,
+      type: 'audio'
+    })
+  }
+
+  if (reply.video_note) {
+    return buildFileInfo({
+      fileId: reply.video_note.file_id,
+      type: 'video_note'
+    })
+  }
+
+  if (reply.video) {
+    return buildFileInfo({
+      fileId: reply.video.file_id,
+      type: 'video'
+    })
+  }
+
+  return null
+}
 
 const resolve = async ({ ctx, bot, info }) => {
-  const fileId = getFileId(ctx)
   const beat = info.actionName
+
+  const { fileId, fileType } = getFileInfo(ctx)
   const filePath = getFilePath(fileId)
 
   await ctx.editMessageText('saving original')
   await saveFileLocal({ filePath, bot, fileId })
 
   await ctx.editMessageText('mixing audios')
-  const outputPath = await mergeAudios({ filePath, beat })
+  const outputPath = await mergeAudios({ filePath, fileType, beat })
 
   await ctx.editMessageText('getting result')
-  const audio = getAudioBuffer(outputPath)
+  const file = getFileBuffer(outputPath)
 
   await ctx.editMessageText('sending mix result')
-  await ctx.replyWithAudio({ source: audio })
 
+  if (fileType === 'audio') {
+    await ctx.replyWithAudio({ source: file })
+  }
+
+  if (fileType === 'video') {
+    await ctx.replyWithVideo({ source: file })
+  }
+
+  if (fileType === 'video_note') {
+    await ctx.replyWithVideoNote({ source: file })
+  }
+
+  console.log('ok')
   await ctx.editMessageText('ok')
 }
 
