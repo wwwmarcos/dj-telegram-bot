@@ -19,5 +19,5 @@ const resolve = async ({ ctx }) => {
 
 module.exports = {
   resolve,
-  on: 'voice'
+  on: ['voice', 'audio', 'video_note', 'video']
 }
