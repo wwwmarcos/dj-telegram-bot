@@ -144,6 +144,20 @@ const getFileInfo = ctx => {
   return null
 }
 
+const sendFile = async ({ fileType, file, ctx }) => {
+  if (fileType === 'audio') {
+    await ctx.replyWithAudio({ source: file })
+  }
+
+  if (fileType === 'video') {
+    await ctx.replyWithVideo({ source: file })
+  }
+
+  if (fileType === 'video_note') {
+    await ctx.replyWithVideoNote({ source: file })
+  }
+}
+
 const resolve = async ({ ctx, bot, info }) => {
   const beat = info.actionName
 
@@ -160,20 +174,8 @@ const resolve = async ({ ctx, bot, info }) => {
   const file = getFileBuffer(outputPath)
 
   await ctx.editMessageText('sending mix result')
+  await sendFile({ fileType, file, ctx })
 
-  if (fileType === 'audio') {
-    await ctx.replyWithAudio({ source: file })
-  }
-
-  if (fileType === 'video') {
-    await ctx.replyWithVideo({ source: file })
-  }
-
-  if (fileType === 'video_note') {
-    await ctx.replyWithVideoNote({ source: file })
-  }
-
-  console.log('ok')
   await ctx.editMessageText('ok')
 }
 
