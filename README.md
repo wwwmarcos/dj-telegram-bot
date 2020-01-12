@@ -1,5 +1,8 @@
 # dj-telegram-bot
 
+## How to add more beats?
+Just create a audio file in the [/audios](https://github.com/eptaccio/dj-telegram-bot/tree/master/audios) folder without the extension. The bot wil use the file name in the beats menu.
+
 ## Development
 `BOT_TOKEN=<bot-token> NODE_ENV=dev node index.js`
 
