@@ -1,9 +1,9 @@
 const { Markup, Extra } = require('telegraf')
-const { avaibleBeats } = require('./avaibleBeats')
+const { availableBeats } = require('./availableBeats')
 
 const resolve = async ({ ctx }) => {
-  const callBacks = avaibleBeats.map(beat =>
-    Markup.callbackButton(beat, beat)
+  const callBacks = availableBeats.map(beat =>
+    [Markup.callbackButton(beat, beat)]
   )
 
   const inlineMessageRatingKeyboard = Markup

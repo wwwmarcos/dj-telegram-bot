@@ -1,6 +1,5 @@
-const hello = require('./hello')
-const funk = require('./music')
-const funkActions = require('./music/actions')
+const music = require('./music')
+const musicActions = require('./music/actions')
 
 const createResolver = ({ resolving, resolve, bot, info }) => async ctx => {
   try {
@@ -17,9 +16,8 @@ const createResolver = ({ resolving, resolve, bot, info }) => async ctx => {
 
 const configure = bot => {
   const commands = [
-    funk,
-    hello,
-    ...funkActions.actions
+    music,
+    ...musicActions.actions
   ]
 
   for (const { command, resolve, on, action } of commands) {

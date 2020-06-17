@@ -1,4 +1,4 @@
-const { avaibleBeats } = require('./avaibleBeats')
+const { availableBeats } = require('./availableBeats')
 
 const {
   getFilePath,
@@ -16,7 +16,7 @@ const {
 } = require('../../lib/file')
 
 const resolve = async ({ ctx, bot, info }) => {
-  const beat = info.actionName
+  const selectedBeatName = info.actionName
 
   const { fileId, fileType } = getFileInfo(ctx)
   const filePath = getFilePath(fileId)
@@ -25,18 +25,21 @@ const resolve = async ({ ctx, bot, info }) => {
   await saveFileLocal({ filePath, bot, fileId })
 
   await ctx.editMessageText('mixing audios')
-  const outputPath = await mergeAudios({ filePath, fileType, beat })
+  const outputMixPath = await mergeAudios({ filePath, fileType, beat: selectedBeatName })
 
   await ctx.editMessageText('getting result')
-  const file = getFileBuffer(outputPath)
+  const mixResult = getFileBuffer(outputMixPath)
 
-  await ctx.editMessageText('sending mix result')
-  await sendFile({ fileType, file, ctx })
+  const lastMessage = await ctx.editMessageText('sending mix result')
+  await sendFile({ fileType, file: mixResult, ctx })
 
-  await ctx.editMessageText('ok')
+  await ctx.deleteMessage(
+    lastMessage.message_id,
+    lastMessage.from.id
+  )
 }
 
-const actions = avaibleBeats.map(beat => ({
+const actions = availableBeats.map(beat => ({
   action: {
     name: beat,
     resolve
