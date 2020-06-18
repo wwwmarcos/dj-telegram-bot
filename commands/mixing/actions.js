@@ -1,4 +1,5 @@
 const { availableBeats } = require('./availableBeats')
+const { availableEffects } = require('./availableEffects')
 
 const {
   getFilePath,
@@ -25,10 +26,23 @@ const use = bot => {
       }
     }))
   }
+
+  for (const effect of availableEffects) {
+    bot.action(effect.name, ctx => resolve({
+      ctx,
+      bot,
+      info: {
+        effect
+      }
+    }))
+  }
 }
 
 const resolve = async ({ ctx, bot, info }) => {
-  const selectedBeatName = info.actionName
+  const {
+    actionName: selectedBeatName,
+    effect
+  } = info
 
   const { fileId, fileType } = getFileInfo(ctx)
   const filePath = getFilePath(fileId)
@@ -37,7 +51,12 @@ const resolve = async ({ ctx, bot, info }) => {
   await saveFileLocal({ filePath, bot, fileId })
 
   await ctx.editMessageText('mixing audios')
-  const outputMixPath = await mergeAudios({ filePath, fileType, beat: selectedBeatName })
+  const outputMixPath = await mergeAudios({
+    filePath,
+    fileType,
+    beat: selectedBeatName,
+    effect
+  })
 
   await ctx.editMessageText('getting result')
   const mixResult = getFileBuffer(outputMixPath)
