@@ -1,7 +1,16 @@
 const { Markup, Extra } = require('telegraf')
 const { availableBeats } = require('./availableBeats')
 
-const resolve = async ({ ctx }) => {
+const use = bot => {
+  bot.on([
+    'voice',
+    'audio',
+    'video_note',
+    'video'
+  ], resolve)
+}
+
+const resolve = async ctx => {
   const callBacks = availableBeats.map(beat =>
     [Markup.callbackButton(beat, beat)]
   )
@@ -18,6 +27,5 @@ const resolve = async ({ ctx }) => {
 }
 
 module.exports = {
-  resolve,
-  on: ['voice', 'audio', 'video_note', 'video']
+  use
 }

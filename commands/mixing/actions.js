@@ -15,6 +15,18 @@ const {
   sendFile
 } = require('../../lib/file')
 
+const use = bot => {
+  for (const beat of availableBeats) {
+    bot.action(beat, ctx => resolve({
+      ctx,
+      bot,
+      info: {
+        actionName: beat
+      }
+    }))
+  }
+}
+
 const resolve = async ({ ctx, bot, info }) => {
   const selectedBeatName = info.actionName
 
@@ -39,13 +51,6 @@ const resolve = async ({ ctx, bot, info }) => {
   )
 }
 
-const actions = availableBeats.map(beat => ({
-  action: {
-    name: beat,
-    resolve
-  }
-}))
-
 module.exports = {
-  actions
+  use
 }
