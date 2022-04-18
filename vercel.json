@@ -1,14 +1,10 @@
 {
   "version": 2,
-  "name": "djproducerbot",
-  "alias": [
-    "djproducerbot.now.sh"
-  ],
   "public": true,
   "builds": [
     {
       "src": "index.js",
-      "use": "@now/node-server",
+      "use": "@vercel/node",
       "config": {
         "includeFiles": [
           "binaries/**",
