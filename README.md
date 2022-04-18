@@ -9,7 +9,7 @@ Just create a audio file in the [/audios](https://github.com/eptaccio/dj-telegra
 _[You can get a token creating a new bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)_
 
 ## Deployment
-`now -e BOT_TOKEN=<bot-token> --prod`
+push to `main
 
 ## Configuring WebHook
 GET `http:<url>/start`
