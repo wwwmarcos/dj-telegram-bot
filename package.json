@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "axios": "^0.26.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "telegraf": "^3.34.1"
   },
   "scripts": {
